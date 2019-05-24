@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const startBot = require('../bot/bin/server');
+const startBot = require('../../bot/bin/server');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
