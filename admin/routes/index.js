@@ -1,15 +1,17 @@
 var express = require('express');
 var router = express.Router();
-const startBot = require('../../bot/bin/server');
+const Bot = require('../../bot/bot');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	res.render('index', { title: 'Express' });
 });
 
-router.get('/start', (req, res, next)=>{
+router.get('/start', async (req, res, next) => {
 	var name = req.query.name;
-	var bot = startBot(name, 50000);
+	var bot = new Bot(name);
+	await bot.init(50000);
+	res.send(bot.name + " has been created !!!");
 });
 
 module.exports = router;

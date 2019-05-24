@@ -1,15 +1,15 @@
-#!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
-var app = require('../app');
-var debug = require('debug')('chatbot:server');
-var http = require('http');
 
 
 const startBot = function (name, portNum) {
+	/**
+	 * Module dependencies.
+	 */
+
+	var app = require('../app');
+	var debug = require('debug')('chatbot:server');
+	var http = require('http');
+
+
 	/**
 	 * Get port from environment and store in Express.
 	 */
