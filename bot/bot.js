@@ -1,19 +1,27 @@
 const RiveScript = require('rivescript');
 
 class Bot{//le despot
-
+//NTgyNTY0NjM0MDU4NDI0MzIx.XOvqag.pkbJ7A_H17Bfvn-QyA0Nb6bEdDI
 	constructor(name) {
 		this.name = name;
 		this.bot = new RiveScript();
+		this.status="offline";
 	}
 
 	async init( port){
 		this.bot.loadFile("./bot/brain/default.rive");
 		this.startServer(port);
+		this.status="online";
 		this.bot.sortReplies();
 	}
 
 
+	async stopServer(){
+		if(this.server!=null && this.status!=="offline"){
+			this.server.close();
+			this.status="offline";
+		}
+	}
 
 	async startServer(portNum){
 		/**
