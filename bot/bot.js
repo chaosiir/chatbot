@@ -13,6 +13,8 @@ class Bot{//le despot
 		this.bot.sortReplies();
 	}
 
+
+
 	async startServer(portNum){
 		/**
 		 * Module dependencies.
@@ -34,20 +36,18 @@ class Bot{//le despot
 		 * Create HTTP server.
 		 */
 
-		this.server = http.createServer(app);
+		var server = http.createServer(app);
 
 		/**
 		 * Listen on provided port, on all network interfaces.
 		 */
-
-		this.server.listen(this.port);
-		this.server.on('error', onError);
-		this.server.on('listening', onListening);
+		server.listen(this.port);
+		server.on('error', onError);
+		server.on('listening', onListening);
 
 		/**
 		 * Normalize a port into a number, string, or false.
 		 */
-
 		async function normalizePort(val) {
 			const checkPort = require('tcp-port-used');
 			var port = parseInt(val, 10);
@@ -73,7 +73,6 @@ class Bot{//le despot
 		/**
 		 * Event listener for HTTP server "error" event.
 		 */
-
 		function onError(error) {
 			if (error.syscall !== 'listen') {
 				throw error;
@@ -101,14 +100,15 @@ class Bot{//le despot
 		/**
 		 * Event listener for HTTP server "listening" event.
 		 */
-
 		function onListening() {
-			var addr = this.server.address();
+			var addr = server.address();
 			var bind = typeof addr === 'string'
 				? 'pipe ' + addr
 				: 'port ' + addr.port;
-			debug('Bot '+ app.botName +' listening on ' + bind);
+			debug('Bot '+ this.name +' listening on ' + bind);
 		}
+
+		this.server = server;
 	}
 }
 
