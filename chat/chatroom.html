@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script>
+
+        async function sendMessage(){
+            var req = new XMLHttpRequest();
+            req.addEventListener("load",function (evt) {
+            	console.log(evt);
+				// $("#answer").html(data);
+            },false);
+            req.open('post','http://localhost:50000/reply',true);
+            req.setRequestHeader('content-type','application/json');
+			//req.setRequestHeader('Access-Control-Allow-Origin','*');
+            req.onreadystatechange = function() {
+				if (req.readyState === 4) {
+					$("#answer").html(req.response); // Par défault une DOMString
+				}
+			};
+            req.send(JSON.stringify({msg:$("#question").val(), user:$("#user").val()}));
+
+
+        	// $.post("http://localhost:50000/reply",{msg:$("#question").val(), user:$("#user").val()},(data)=>{
+        	// 	$("#answer").html(data);
+            // })
+        	//$("#answer").load("http://localhost:50000/reply",{msg:$("#question").innerText, user:$("#user").innerText});
+        }
+    </script>
+</head>
+<body>
+    <div style="border: solid 2px black; width: 80%" id="answer">
+    </div>
+    <br>
+    <div id="send">
+        <input id="user" type="text" placeholder="Username">
+        <input id="question" type="text" placeholder="Message">
+        <input type="button" value="Send" onclick="sendMessage()">
+    </div>
+</body>
+</html>

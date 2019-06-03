@@ -2,11 +2,12 @@ var express = require('express');
 var router = express.Router();
 
 /**
- * Where the bot talks with the users
+ * Where the brain talks with the users
  */
 
 
-router.post('/listen', function(req, res, next) {
+
+router.get('/answer', function(req, res, next) {
 
 });
 

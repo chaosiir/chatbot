@@ -4,15 +4,15 @@ class Bot{//le despot
 //NTgyNTY0NjM0MDU4NDI0MzIx.XOvqag.pkbJ7A_H17Bfvn-QyA0Nb6bEdDI
 	constructor(name) {
 		this.name = name;
-		this.bot = new RiveScript();
+		this.brain = new RiveScript();
 		this.status="offline";
 	}
 
 	async init( port){
-		this.bot.loadFile("./bot/brain/default.rive");
+		this.brain.loadFile("./bot/brain/default.rive");
 		this.startServer(port);
 		this.status="online";
-		this.bot.sortReplies();
+		this.brain.sortReplies();
 	}
 
 
@@ -32,6 +32,8 @@ class Bot{//le despot
 		var debug = require('debug')('chatbot:server');
 		var http = require('http');
 
+		app.locals.brain = this.brain;
+		app.locals.name = this.name;
 
 		/**
 		 * Get port from environment and store in Express.
