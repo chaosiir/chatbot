@@ -14,12 +14,13 @@ router.options('/reply', function(req, res, next){
 });
 
 router.post('/reply', function(req, res, next) {
-	console.log(req);
-	// var msg = req.query.msg;
-	// var user = req.query.user;
-	// var answer=app.locals.brain.reply(user,msg);
-	res.header("Access-Control-Allow-Origin", "*");
-	res.send("Hello there ");
+	console.log(req.body);
+	let msg = req.body.msg;
+	let user = req.body.user;
+	req.app.locals.brain.reply(user,msg).then(answer=>{
+		res.header("Access-Control-Allow-Origin", "*");
+		res.send(answer);
+	});
 });
 
 

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Bot = require('../../bot/bot');
 var botList = require('../botList');
+const RiveScript = require('rivescript');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -30,26 +31,43 @@ router.post('/:name/start', async (req, res, next) => {
 		botList.push(bot);
 		res.send(bot.name + " has been created and turned on !!!\n");
 	}
-
 });
-//TODO definir comment on change les cerveaux
-router.patch('/:name/brain', async (req, res, next) => {
-	var name = req.params.name;
-	var flag = true;
 
+
+router.put('/:name/addbrain/:brain', async (req, res, next) => {
+	let name = req.params.name;
+	let brain= req.params.brain;
 	for (elt of botList){
 		if(name===elt.name) {
-
+			try {
+				elt.addBrain(brain);
+				res.send(name +" brain has been added\n")
+			}catch (e) {
+				res.send(e)
+			}
 		}
 	}
-	if(flag){
+});
+
+
+router.put('/:name/newbrain/:brain', async (req, res, next) => {
+	let name = req.params.name;
+	let brain= req.params.brain;
+	for (elt of botList) {
+		if (name === elt.name) {
+			elt.changeBrain(brain).then(() => {
+				res.send(name + " brain has been changed\n")
+			}).catch((err) => {
+				res.send(err)
+			})
+		}
 	}
 });
+
 
 router.patch('/:name/stop', async (req, res, next) => {
 	var name = req.params.name;
 	var flag = true;
-
 	for (elt of botList){
 		if(name===elt.name) {
 			if(elt.status==="offline"){
@@ -67,6 +85,7 @@ router.patch('/:name/stop', async (req, res, next) => {
 	}
 });
 
+
 router.delete('/:name', async (req, res, next) => {
 	var name = req.params.name;
 	var flag = true;
@@ -83,6 +102,7 @@ router.delete('/:name', async (req, res, next) => {
 		res.status(400).send('Ce n\'est pas le robot que vous recherchez\n');
 	}
 });
+
 
 router.get('/status', (req, res, next) => {
 	let status = [];

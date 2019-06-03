@@ -6,21 +6,54 @@ class Bot{//le despot
 		this.name = name;
 		this.brain = new RiveScript();
 		this.status="offline";
+		this.app = require('./app');
+		this.app.locals.brain = this.brain;
 	}
 
 	async init( port){
-		this.brain.loadFile("./bot/brain/default.rive");
+	    this.addBrain("default");
 		this.startServer(port);
 		this.status="online";
-		this.brain.sortReplies();
 	}
-
 
 	async stopServer(){
 		if(this.server!=null && this.status!=="offline"){
 			this.server.close();
 			this.status="offline";
 		}
+	}
+
+	addBrain(filename){
+		this.brain = this.app.locals.brain;
+		this.brain.loadFile("./bot/brain/"+filename+".rive").then(()=>this.brain.sortReplies());
+	}
+
+	async changeBrain(filename){
+		var uservars = this.stop();
+		console.log(uservars);
+		this.brain = new RiveScript();
+		var currentBrain=this.brain;
+		console.log(this.brain===currentBrain);
+		return new Promise(((resolve, reject) => {
+			currentBrain.loadFile("./bot/brain/"+filename+".rive").then(function(){
+				currentBrain.sortReplies();
+				//todo : load and save uservars + mettre sur discord
+				/*for(user of uservars){
+					currentBrain.setUservars(user.name, user.data);
+				}*/
+				var app = require('./app');
+				app.locals.brain = currentBrain;
+				resolve(true);
+			})/*.catch(()=>{
+				reject("File "+filename+".rive not found\n");
+			});*/
+		}));
+	}
+
+	stop(){
+		this.brain.getUservars().then(value => {
+			return value
+		});
 	}
 
 	async startServer(portNum){
@@ -107,6 +140,7 @@ class Bot{//le despot
 			}
 		}
 
+		var name = this.name;
 		/**
 		 * Event listener for HTTP server "listening" event.
 		 */
@@ -115,7 +149,7 @@ class Bot{//le despot
 			var bind = typeof addr === 'string'
 				? 'pipe ' + addr
 				: 'port ' + addr.port;
-			debug('Bot '+ this.name +' listening on ' + bind);
+			debug('Bot '+ name +' listening on ' + bind);
 		}
 
 		this.server = server;
