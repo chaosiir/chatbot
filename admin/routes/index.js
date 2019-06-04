@@ -9,10 +9,11 @@ router.get('/', function(req, res, next) {
 	res.render('index', { title: 'Express'});
 });
 
-
+//!!!!!! pre condition : deux chatbot ne peuvent pas avoir le meme nom
 router.post('/:name/start', async (req, res, next) => {
 	var name = req.params.name;
 	var flag = true;
+	var portUsed = [];
 	for (elt of botList){
 		if(name===elt.name) {
 			if(elt.status==="online"){ //already exist and already online
@@ -22,12 +23,13 @@ router.post('/:name/start', async (req, res, next) => {
 				res.send(name + " has been turned on !!! (listening on port "+elt.port+")\n");
 			}
 			flag = false;
-			break;
 		}
+		portUsed.push(elt.port);
 	}
 	if(flag){ //new bot
 		var bot = new Bot(name);
-		await bot.startNew(50000);
+		var port = Math.max(...portUsed) + 1;
+		await bot.startNew(port);
 		botList.push(bot);
 		res.send(bot.name + " has been created and turned on !!! (listening on port "+bot.port+")\n");
 	}
@@ -94,6 +96,11 @@ router.delete('/:name', async (req, res, next) => {
 			elt.stopServer();
 			res.send(elt.name +" has been deleted !\n");
 			botList= botList.filter(e => e !== elt);
+			const fs = require('fs');
+			fs.unlink("./bot/save/"+elt.name+".json", (err) => {
+				if (err) console.error(err);
+				console.log('./bot/save/"+elt.name+".json was deleted');
+			});
 			flag=false;
 			break;
 		}

@@ -19,7 +19,7 @@
             	//console.log(evt);
 				// $("#answer").html(data);
             },false);
-            req.open('post','http://localhost:'+$('#port').val()+'/reply',true);
+            req.open('post', $('#addr').val()+'/reply',true);
             req.setRequestHeader('content-type','application/json');
 			//req.setRequestHeader('Access-Control-Allow-Origin','*');
             req.onreadystatechange = function() {
@@ -87,7 +87,8 @@
         <input id="question" type="text" placeholder="Message">
         <input type="button" value="Send" onclick="sendMessage()">
         <br>
-        <input id="port" value="50000" type="text">
+        address of bot :
+        <input id="addr" value="http://localhost:50000" type="text">
     </div>
 </body>
 </html>

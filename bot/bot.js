@@ -1,8 +1,8 @@
 const RiveScript = require('rivescript');
-const fs = require('file-system');
+const fs = require('fs');
 const express = require('express');
 
-class Bot{//le despot
+class Bot{
 //NTgyNTY0NjM0MDU4NDI0MzIx.XOvqag.pkbJ7A_H17Bfvn-QyA0Nb6bEdDI
 	constructor(name) {
 		this.name = name;
@@ -16,7 +16,8 @@ class Bot{//le despot
 
 	async startNew(port){
 	    this.addBrain("default");
-		this.startServer(port);
+	    await this.findPort(port);
+		this.startServer();
 	}
 
 	async stopServer(){
@@ -31,7 +32,7 @@ class Bot{//le despot
 	addBrain(filename){
 		this.brain = this.app.locals.brain;
 		this.brain.loadFile("./bot/brain/"+filename+".rive").then(()=>{
-			this.files.push(filename);
+			this.files.push("./bot/brain/"+filename+".rive");
 			this.brain.sortReplies()
 		}).catch(()=>console.log("file not found"));
 	}
@@ -47,7 +48,7 @@ class Bot{//le despot
 		return new Promise(((resolve, reject) => {
 			currentBrain.loadFile("./bot/brain/"+filename+".rive").then(function(){
 				currentBrain.sortReplies();
-				bot.files.push(filename);
+				bot.files.push("./bot/brain/"+filename+".rive");
 				//TODO (y compris fichier)
 				// TODO mettre sur discord
 				for(let user of Object.keys(uservars)){
@@ -61,14 +62,28 @@ class Bot{//le despot
 		}));
 	}
 
-	load(){
-		fs.readFile('./bot./save/'+this.name+'.json', (err, data) => {
-			if (err)
+	async load(){
+		fs.readFile('./bot/save/'+this.name+'.json', (err, data) => {
+			if (err) console.log(err);
 			var save = JSON.parse(data);
-			console.log(save);
+			//console.log(save);
 			this.port=save.port;
 			this.brain=new RiveScript();
-			this.brain.load(save.files)
+			let bot=this;
+			return new Promise(((resolve, reject) => {
+				bot.brain.loadFile(save.files).then(function(){
+					bot.brain.sortReplies();
+					bot.files=save.files;
+					for(let user of Object.keys(save.uservars)){
+						bot.brain.setUservars(user, save.uservars[user]);
+					}
+					bot.app.locals.brain = bot.brain;
+					resolve(true);
+				}).catch((err)=>{
+					console.log(err);
+					reject(err);
+				})
+			}));
 		});
 	}
 
@@ -82,6 +97,7 @@ class Bot{//le despot
 			};
 			let data = JSON.stringify(save, null, 2);
 			fs.writeFileSync('./bot/save/'+this.name+'.json', data);
+
 		});
 	}
 
@@ -89,36 +105,9 @@ class Bot{//le despot
 		return this.brain.getUservars();
 	}
 
-	async startServer(portNum){
-		/**
-		 * Module dependencies.
-		 */
-		var debug = require('debug')('chatbot:server');
-		var http = require('http');
-
-		//todo: peut être redondant
-		this.app.locals.brain = this.brain;
-		this.app.locals.name = this.name;
-
-		/**
-		 * Get port from environment and store in Express.
-		 */
-
-
-		if(this.port===null) this.port = await normalizePort(process.env.PORT || portNum);
+	async findPort(defaultPort){
+		this.port = await normalizePort(process.env.PORT || defaultPort);
 		this.app.set('port', this.port);
-
-		/**
-		 * Create HTTP server.
-		 */
-		var server = http.createServer(this.app);
-
-		/**
-		 * Listen on provided port, on all network interfaces.
-		 */
-		server.listen(this.port);
-		server.on('error', onError);
-		server.on('listening', onListening);
 
 		/**
 		 * Normalize a port into a number, string, or false.
@@ -135,15 +124,39 @@ class Bot{//le despot
 			if (port >= 0) {
 				// port number
 				var used = await checkPort.check(port);
-				while(used){
-					port+=1;
+				while (used) {
+					port += 1;
 					used = await checkPort.check(port);
 				}
 				return port;
 			}
-
 			return false;
 		}
+	}
+
+	async startServer(){
+		/**
+		 * Module dependencies.
+		 */
+		var debug = require('debug')('chatbot:server');
+		var http = require('http');
+
+		//todo: peut être redondant
+		this.app.locals.brain = this.brain;
+		this.app.locals.name = this.name;
+
+
+		/**
+		 * Create HTTP server.
+		 */
+		var server = http.createServer(this.app);
+
+		/**
+		 * Listen on provided port, on all network interfaces.
+		 */
+		server.listen(this.port);
+		server.on('error', onError);
+		server.on('listening', onListening);
 
 		/**
 		 * Event listener for HTTP server "error" event.
