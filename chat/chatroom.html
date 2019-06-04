@@ -7,20 +7,31 @@
     <script>
 
         async function sendMessage(){
+			let input = {msg:$("#question").val(), user:$("#user").val()};
+			let d = document.createElement('div');
+			$(d).addClass("conv")
+                .attr("id", "local")
+				.html(input.user+" : "+input.msg)
+				.appendTo($("#answerBox"));
+
             var req = new XMLHttpRequest();
             req.addEventListener("load",function (evt) {
             	//console.log(evt);
 				// $("#answer").html(data);
             },false);
-            req.open('post','http://localhost:50000/reply',true);
+            req.open('post','http://localhost:'+$('#port').val()+'/reply',true);
             req.setRequestHeader('content-type','application/json');
 			//req.setRequestHeader('Access-Control-Allow-Origin','*');
             req.onreadystatechange = function() {
 				if (req.readyState === 4) {
-					$("#answer").html(req.response); // Par défault une DOMString
+					let d = document.createElement('div');
+					$(d).addClass("conv")
+						.attr("id", "remote")
+						.html("bot"+" : "+req.response)
+						.appendTo($("#answerBox"));
 				}
 			};
-            req.send(JSON.stringify({msg:$("#question").val(), user:$("#user").val()}));
+			req.send(JSON.stringify(input));
 
 
         	// $.post("http://localhost:50000/reply",{msg:$("#question").val(), user:$("#user").val()},(data)=>{
@@ -29,15 +40,54 @@
         	//$("#answer").load("http://localhost:50000/reply",{msg:$("#question").innerText, user:$("#user").innerText});
         }
     </script>
+    <style>
+        .conv{
+            padding:2px;
+            width:100%;
+            margin:auto;
+        }
+
+        #local{
+            text-align: right;
+        }
+
+        #remote{
+            text-align: left;
+        }
+
+        #answerBox{
+            border: solid 2px black;
+            width : 80%;
+            /*height :80%;*/
+            margin-top: 5%;
+            margin-left: 10%;
+            margin-right: 10%;
+            overflow-y: scroll;
+            padding: 5px;
+            max-height: 500px;
+            min-height: 500px;
+        }
+
+        #send{
+            padding: 5px;
+            width : 80%;
+            height :80%;
+            margin-top: 1%;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+    </style>
 </head>
 <body>
-    <div style="border: solid 2px black; width: 80%" id="answer">
+    <div id="answerBox">
     </div>
     <br>
     <div id="send">
         <input id="user" type="text" placeholder="Username">
         <input id="question" type="text" placeholder="Message">
         <input type="button" value="Send" onclick="sendMessage()">
+        <br>
+        <input id="port" value="50000" type="text">
     </div>
 </body>
 </html>

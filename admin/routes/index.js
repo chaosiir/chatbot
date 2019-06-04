@@ -15,21 +15,21 @@ router.post('/:name/start', async (req, res, next) => {
 	var flag = true;
 	for (elt of botList){
 		if(name===elt.name) {
-			if(elt.status==="online"){
-				res.send(name + " is already running !\n");
-			}else{
-				elt.startServer(50000);
-				res.send(name + " has been turned on !!!\n");
+			if(elt.status==="online"){ //already exist and already online
+				res.send(name + " is already running ! (listening on port "+elt.port+")\n");
+			}else{ //already exist but offline
+				elt.startServer(elt.port);
+				res.send(name + " has been turned on !!! (listening on port "+elt.port+")\n");
 			}
 			flag = false;
 			break;
 		}
 	}
-	if(flag){
+	if(flag){ //new bot
 		var bot = new Bot(name);
-		await bot.init(50000);
+		await bot.startNew(50000);
 		botList.push(bot);
-		res.send(bot.name + " has been created and turned on !!!\n");
+		res.send(bot.name + " has been created and turned on !!! (listening on port "+bot.port+")\n");
 	}
 });
 
@@ -80,7 +80,7 @@ router.patch('/:name/stop', async (req, res, next) => {
 			break;
 		}
 	}
-	if(flag){
+	if(flag){ //bot "name" doesn't exist
 		res.status(400).send('Ce n\'est pas le robot que vous recherchez\n');
 	}
 });
@@ -98,7 +98,7 @@ router.delete('/:name', async (req, res, next) => {
 			break;
 		}
 	}
-	if(flag){
+	if(flag){ //bot "name" doesn't exist
 		res.status(400).send('Ce n\'est pas le robot que vous recherchez\n');
 	}
 });
