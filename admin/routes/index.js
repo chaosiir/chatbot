@@ -66,6 +66,20 @@ router.put('/:name/newbrain/:brain', async (req, res, next) => {
 	}
 });
 
+router.post('/:name/connect-to/:bot', (req, res, next) => {
+	let name =req.params.name;
+	let bot=req.params.bot;
+	for (elt of botList) {
+		if (name === elt.name) {
+			elt.connectToDiscord(bot).then(() => {
+				res.send(name + " is connected to "+bot+" on Discord\n")
+			}).catch((err) => {
+				res.send(err)
+			})
+		}
+	}
+});
+
 
 router.patch('/:name/stop', async (req, res, next) => {
 	var name = req.params.name;

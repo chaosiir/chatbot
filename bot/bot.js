@@ -3,7 +3,6 @@ const fs = require('fs');
 const express = require('express');
 
 class Bot{
-//NTgyNTY0NjM0MDU4NDI0MzIx.XOvqag.pkbJ7A_H17Bfvn-QyA0Nb6bEdDI
 	constructor(name) {
 		this.name = name;
 		this.brain = new RiveScript();
@@ -12,6 +11,37 @@ class Bot{
 		this.app.locals.brain = this.brain;
 		this.app.locals.name = this.name;
 		this.files = [];
+		this.clients = {};
+	}
+
+	async connectToDiscord(botName){// todo : sauvegarder dans le fichier de sauvegarde les bots auxquelles sont connecté le serveur et restaurer au lancement
+		if(this.clients[botName]!==undefined){
+			console.log(botName+" already connected");
+		}else{
+			const Discord = require('discord.js');
+			const client = new Discord.Client();
+
+			client.on('ready', () => {
+				console.log(`Logged in as ${client.user.tag}!`);
+				this.clients[botName] = client;
+			});
+
+			client.on('message', msg => {
+				if (msg.isMemberMentioned(client.user) ) { // à voir si c'est pas .tag ou .id ou .username ou .avatar
+					msg.reply(this.brain.reply(msg.author, msg.content));//TODO reponse à un message
+				}
+			});
+			client.login('token');
+		}
+	}
+
+	async disconnectFromDiscord(botName){
+		if(this.clients[botName]===undefined){
+			console.log(botName+" already disconnected");
+		}else{
+			this.clients[botName].destroy();//extaerminate
+			delete this.clients[botName];
+		}
 	}
 
 	async startNew(port){
