@@ -15,13 +15,8 @@
 				.appendTo($("#answerBox"));
 
             var req = new XMLHttpRequest();
-            req.addEventListener("load",function (evt) {
-            	//console.log(evt);
-				// $("#answer").html(data);
-            },false);
             req.open('post', $('#addr').val()+'/reply',true);
             req.setRequestHeader('content-type','application/json');
-			//req.setRequestHeader('Access-Control-Allow-Origin','*');
             req.onreadystatechange = function() {
 				if (req.readyState === 4) {
 					let d = document.createElement('div');
@@ -32,12 +27,6 @@
 				}
 			};
 			req.send(JSON.stringify(input));
-
-
-        	// $.post("http://localhost:50000/reply",{msg:$("#question").val(), user:$("#user").val()},(data)=>{
-        	// 	$("#answer").html(data);
-            // })
-        	//$("#answer").load("http://localhost:50000/reply",{msg:$("#question").innerText, user:$("#user").innerText});
         }
     </script>
     <style>
@@ -58,7 +47,6 @@
         #answerBox{
             border: solid 2px black;
             width : 80%;
-            /*height :80%;*/
             margin-top: 5%;
             margin-left: 10%;
             margin-right: 10%;

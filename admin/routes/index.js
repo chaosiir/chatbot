@@ -79,6 +79,19 @@ router.post('/:name/connect-to/:bot', (req, res, next) => {
 		}
 	}
 });
+router.post('/:name/disconnect/:bot', (req, res, next) => {
+	let name =req.params.name;
+	let bot=req.params.bot;
+	for (elt of botList) {
+		if (name === elt.name) {
+			elt.disconnectFromDiscord(bot).then(() => {
+				res.send(name + " successfully disconnected from "+bot+"\n")
+			}).catch((err) => {
+				res.send(err)
+			})
+		}
+	}
+});
 
 
 router.patch('/:name/stop', async (req, res, next) => {
@@ -131,7 +144,8 @@ router.get('/status', (req, res, next) => {
 		status.push({
 			"name":bot.name,
 			"port":bot.port,
-			"status":bot.status
+			"status":bot.status,
+			"discord-bot-names":Object.keys(bot.clients)
 		})
 	}
 	res.json(status);

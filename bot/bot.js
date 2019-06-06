@@ -14,32 +14,45 @@ class Bot{
 		this.clients = {};
 	}
 
-	async connectToDiscord(botName){// todo : sauvegarder dans le fichier de sauvegarde les bots auxquelles sont connecté le serveur et restaurer au lancement
+	async connectToDiscord(botName){
 		if(this.clients[botName]!==undefined){
 			console.log(botName+" already connected");
 		}else{
 			const Discord = require('discord.js');
 			const client = new Discord.Client();
+			fs.readFile("./bot/token.json" , (err, data) => {
+				if (err) console.log(err);
+				const token = JSON.parse(data);
+				console.log(token);
+				if(token[botName]!==undefined) {
+					client.on('ready', () => {
+						console.log(`Logged in as ${client.user.tag}!`);
+						this.load();
+						this.clients[botName] = client;
+					});
 
-			client.on('ready', () => {
-				console.log(`Logged in as ${client.user.tag}!`);
-				this.clients[botName] = client;
-			});
-
-			client.on('message', msg => {
-				if (msg.isMemberMentioned(client.user) ) { // à voir si c'est pas .tag ou .id ou .username ou .avatar
-					msg.reply(this.brain.reply(msg.author, msg.content));//TODO reponse à un message
+					client.on('message', msg => {
+						if (msg.isMemberMentioned(client.user) ) { // à voir si c'est pas .tag ou .id ou .username ou .avatar
+							console.log(msg.cleanContent);
+							let cleanmsg=msg.cleanContent.trim().split("@"+botName).join('');
+							this.brain.reply(msg.author.username, cleanmsg).then(reply => msg.reply(reply)).catch(err => console.error(err));
+						}
+					});
+					client.login(token[botName]);
+				}
+				else {
+					console.log("undefined Discord bot")
 				}
 			});
-			client.login('token');
+
 		}
 	}
-
 	async disconnectFromDiscord(botName){
 		if(this.clients[botName]===undefined){
 			console.log(botName+" already disconnected");
 		}else{
-			this.clients[botName].destroy();//extaerminate
+		    this.save();
+			this.clients[botName].destroy();//exterminate
 			delete this.clients[botName];
 		}
 	}
@@ -79,8 +92,7 @@ class Bot{
 			currentBrain.loadFile("./bot/brain/"+filename+".rive").then(function(){
 				currentBrain.sortReplies();
 				bot.files.push("./bot/brain/"+filename+".rive");
-				//TODO (y compris fichier)
-				// TODO mettre sur discord
+
 				for(let user of Object.keys(uservars)){
 					currentBrain.setUservars(user, uservars[user]);
 				}
@@ -172,8 +184,8 @@ class Bot{
 		var http = require('http');
 
 		//todo: peut être redondant
-		this.app.locals.brain = this.brain;
-		this.app.locals.name = this.name;
+		/*this.app.locals.brain = this.brain;
+		this.app.locals.name = this.name;*/
 
 
 		/**
