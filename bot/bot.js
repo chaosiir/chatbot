@@ -183,11 +183,6 @@ class Bot{
 		var debug = require('debug')('chatbot:server');
 		var http = require('http');
 
-		//todo: peut être redondant
-		/*this.app.locals.brain = this.brain;
-		this.app.locals.name = this.name;*/
-
-
 		/**
 		 * Create HTTP server.
 		 */
