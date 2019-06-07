@@ -88,3 +88,5 @@ Va chercher le token de :nomdiscord dans le fichier "token.json" pour ensuite co
  Pour envoyer un message au bot de port 50000 :
  
     curl -X POST -H "Content-type: application/json" -d '{"usr":username, "msg":message}' 'http://localhost:50000'
+    
+ Il est aussi possible d'ouvrir le fichier chatroom.html dans un navigateur de votre choix pour envoyer des requetes, il ne vous reste plus qu'a rentrer votre identifiant , message et le port d'envoit pour envoyer la requete.   
